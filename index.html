@@ -30,16 +30,19 @@
             background: #000;
         }
 
+        /* Perbaikan Video: Mengurangi efek zoom agar lebih proporsional */
         #bg-video {
             position: fixed;
-            right: 0;
-            bottom: 0;
+            top: 50%;
+            left: 50%;
             min-width: 100%;
             min-height: 100%;
+            width: auto;
+            height: auto;
             z-index: -1;
+            transform: translate(-50%, -50%);
             object-fit: cover;
-            filter: brightness(0.4);
-            pointer-events: none;
+            filter: brightness(0.35);
         }
 
         .card {
@@ -67,8 +70,6 @@
             transition: all 0.5s ease;
         }
 
-        .pfp-container:hover { transform: scale(1.1) rotate(5deg); }
-
         .pfp-container img {
             width: 110px;
             height: 110px;
@@ -94,7 +95,6 @@
             font-size: 0.8rem;
             font-weight: 600;
             transition: 0.4s;
-            border-bottom: 3px solid transparent;
         }
 
         .tab-btn.active {
@@ -127,11 +127,6 @@
             transition: 0.3s;
         }
 
-        .link-box:hover {
-            background: rgba(255, 0, 127, 0.15);
-            transform: translateX(5px);
-        }
-
         .link-box i {
             font-size: 1.4rem;
             margin-right: 15px;
@@ -149,12 +144,6 @@
             color: #efefef;
             text-decoration: none;
             font-size: 0.9rem;
-            transition: 0.3s;
-        }
-
-        .service-link:hover {
-            background: var(--pink-glow);
-            padding-left: 20px;
         }
 
         .payment-card {
@@ -165,11 +154,7 @@
             border: 1px dashed var(--pink-glow);
         }
 
-        .qris-img {
-            width: 100%;
-            border-radius: 10px;
-            margin-bottom: 15px;
-        }
+        .qris-img { width: 100%; border-radius: 10px; margin-bottom: 15px; }
 
         .payment-info {
             font-size: 0.85rem;
@@ -188,18 +173,17 @@
             gap: 25px;
         }
 
-        .footer a { color: white; font-size: 1.5rem; transition: 0.3s; }
-        .footer a:hover { color: var(--pink-glow); }
+        .footer a { color: white; font-size: 1.5rem; }
     </style>
 </head>
 <body>
 
     <video autoplay muted loop playsinline id="bg-video">
-        <source src="https://files.catbox.moe/7p6ntm.mp4" type="video/mp4">
+        <source src="https://files.catbox.moe/dre1ia.mp4" type="video/mp4">
     </video>
 
-    <audio id="bg-music" loop>
-        <source src="https://pomf2.lain.la/f/rvt4a4u7.mp3" type="audio/mpeg">
+    <audio id="bg-music" loop preload="auto">
+        <source src="https://files.catbox.moe/rzyrcg.mp3" type="audio/mpeg">
     </audio>
 
     <div class="card">
@@ -212,8 +196,7 @@
 
         <div id="wrapper-ui" style="display: none;">
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('about', this)">ABOUT 
-                ME</button>
+                <button class="tab-btn active" onclick="switchTab('about', this)">ABOUT ME</button>
                 <button class="tab-btn" onclick="switchTab('service', this)">SERVICES</button>
             </div>
 
@@ -270,9 +253,9 @@
                 wrapper.style.display = 'block';
                 title.innerText = "BebyShina";
                 
-                // Putar musik & pastikan video jalan saat profil diklik
-                music.play().catch(e => console.log("Autoplay dicegah browser"));
-                video.play(); 
+                // Memulai musik dan memastikan video berjalan saat klik
+                music.play().catch(e => console.log("Audio play diblokir browser"));
+                video.play();
             }
         }
 
@@ -288,4 +271,4 @@
         }
     </script>
 </body>
-    </html>
+</html>

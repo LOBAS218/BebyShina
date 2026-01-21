@@ -39,6 +39,7 @@
             z-index: -1;
             object-fit: cover;
             filter: brightness(0.4);
+            pointer-events: none;
         }
 
         .card {
@@ -194,8 +195,12 @@
 <body>
 
     <video autoplay muted loop playsinline id="bg-video">
-    <source src="https://files.catbox.moe/dre1ia.mp4" type="video/mp4">
-</video>
+        <source src="https://files.catbox.moe/7p6ntm.mp4" type="video/mp4">
+    </video>
+
+    <audio id="bg-music" loop>
+        <source src="https://pomf2.lain.la/f/rvt4a4u7.mp3" type="audio/mpeg">
+    </audio>
 
     <div class="card">
         <div class="pfp-container" onclick="toggleUI()">
@@ -258,9 +263,16 @@
         function toggleUI() {
             const wrapper = document.getElementById('wrapper-ui');
             const title = document.getElementById('main-title');
+            const music = document.getElementById('bg-music');
+            const video = document.getElementById('bg-video');
+
             if (wrapper.style.display === 'none') {
                 wrapper.style.display = 'block';
                 title.innerText = "BebyShina";
+                
+                // Putar musik & pastikan video jalan saat profil diklik
+                music.play().catch(e => console.log("Autoplay dicegah browser"));
+                video.play(); 
             }
         }
 
@@ -276,4 +288,4 @@
         }
     </script>
 </body>
-</html>
+    </html>

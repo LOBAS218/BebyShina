@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BebyShina - Premium Anime</title>
+    <title>BebyShina - Ultimate</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <script
       async
       crossorigin="anonymous"
@@ -15,96 +14,75 @@
       src="https://top-weevil-82.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
       type="text/javascript"
     ></script>
-
     <style>
-        body { background-color: #0d0d0d; color: white; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .tab-active { color: white; border-bottom: 3px solid #f39c12; }
+        body { background-color: #0b0b0b; color: white; font-family: 'Poppins', sans-serif; }
         .bg-orange-play { background-color: #f39c12; }
         .text-orange-play { color: #f39c12; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .anime-card { transition: transform 0.2s; }
-        .anime-card:active { transform: scale(0.95); }
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .glass-nav { background: rgba(17, 17, 17, 0.95); backdrop-filter: blur(10px); }
+        .anime-card { transition: all 0.2s; }
+        .anime-card:active { transform: scale(0.96); }
     </style>
 </head>
 <body class="pb-24">
 
     <div id="app" class="hidden">
-        <header class="p-5 flex justify-between items-center sticky top-0 bg-[#0d0d0d] z-50">
+        <header class="p-5 flex justify-between items-center sticky top-0 bg-[#0b0b0b] z-50">
             <div class="flex items-center gap-2">
-                <i class="fas fa-crown text-orange-play text-2xl"></i>
+                <i class="fas fa-crown text-orange-play text-2xl shadow-lg"></i>
                 <h1 class="text-2xl font-extrabold italic tracking-tighter">BEBY<span class="text-orange-play">SHINA</span></h1>
             </div>
-            <i class="fas fa-search text-xl text-zinc-400" onclick="document.getElementById('searchInput').focus()"></i>
+            <div id="u-btn"></div>
         </header>
 
-        <div class="px-5 mb-6">
+        <div class="px-5 mb-4">
             <div class="relative">
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"></i>
-                <input type="text" id="searchInput" placeholder="Cari Anime Apapun..." 
-                class="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl py-4 pl-12 pr-4 text-sm outline-none focus:border-orange-play transition-all">
+                <input type="text" id="searchInput" placeholder="Cari anime..." class="w-full bg-zinc-900 border border-zinc-800 rounded-2xl py-4 pl-12 pr-4 text-sm outline-none focus:border-orange-play">
             </div>
         </div>
 
         <main>
             <div id="home-view" class="view">
-                <div class="flex px-5 gap-8 text-zinc-500 font-bold mb-8 text-sm uppercase tracking-widest border-b border-zinc-900">
-                    <span class="tab-active pb-2 cursor-pointer">Anime</span>
+                <div class="flex px-5 gap-8 text-zinc-500 font-bold mb-6 text-sm uppercase border-b border-zinc-900">
+                    <span class="text-white border-b-2 border-orange-play pb-2">Anime</span>
                 </div>
                 
-                <section class="px-5 mb-8">
+                <section class="px-5">
                     <div class="flex justify-between items-center mb-5">
-                        <h2 class="font-extrabold text-lg italic">Episode Terbaru</h2>
-                        <span class="text-orange-play text-xs font-bold" onclick="fetchRecent()">Refresh</span>
+                        <h2 id="section-title" class="font-bold text-lg italic">Episode Terbaru</h2>
+                        <button onclick="fetchRecent()" class="text-orange-play text-xs font-black flex items-center gap-1 bg-orange-500/10 px-3 py-1 rounded-full">
+                            <i class="fas fa-sync-alt"></i> REFRESH
+                        </button>
                     </div>
-                    <div id="anime-grid" class="grid grid-cols-3 gap-4">
-                        <div class="animate-pulse bg-zinc-900 aspect-[3/4] rounded-2xl"></div>
-                        <div class="animate-pulse bg-zinc-900 aspect-[3/4] rounded-2xl"></div>
-                        <div class="animate-pulse bg-zinc-900 aspect-[3/4] rounded-2xl"></div>
-                    </div>
+                    <div id="anime-grid" class="grid grid-cols-3 gap-4"></div>
                 </section>
             </div>
 
             <div id="explore-view" class="view hidden px-5">
-                <h2 class="text-xl font-black mb-6 italic border-l-4 border-orange-play pl-3">SEMUA GENRE</h2>
-                <div id="genre-grid" class="grid grid-cols-2 gap-3 pb-10">
-                    </div>
+                <h2 class="text-xl font-black mb-6 italic">GENRE LENGKAP</h2>
+                <div id="genre-grid" class="grid grid-cols-2 gap-3"></div>
             </div>
 
             <div id="list-view" class="view hidden px-5">
                 <h2 class="text-xl font-black mb-6 italic">MY LIST</h2>
-                <div id="fav-grid" class="grid grid-cols-2 gap-4">
-                    </div>
-            </div>
-
-            <div id="profile-view" class="view hidden px-5 text-center">
-                <div class="bg-zinc-900/50 rounded-3xl p-8 border border-zinc-800 mb-6">
-                    <div id="u-avatar" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-orange-play overflow-hidden shadow-2xl shadow-orange-500/20"></div>
-                    <h2 id="u-name" class="text-xl font-black mb-1 italic"></h2>
-                    <p id="u-email" class="text-xs text-zinc-500"></p>
-                </div>
-                <button onclick="Clerk.signOut()" class="w-full bg-zinc-900 py-4 rounded-2xl text-red-500 font-black text-sm border border-zinc-800">KELUAR AKUN</button>
+                <div id="fav-grid" class="grid grid-cols-2 gap-4 text-zinc-500 text-xs text-center py-20">List kosong.</div>
             </div>
         </main>
 
-        <div id="detail-page" class="hidden fixed inset-0 bg-[#0d0d0d] z-[100] overflow-y-auto no-scrollbar">
-            <div class="relative w-full aspect-video bg-black shadow-2xl">
-                <img id="det-banner" class="w-full h-full object-cover opacity-50">
-                <div class="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] via-transparent"></div>
+        <div id="detail-page" class="hidden fixed inset-0 bg-[#0b0b0b] z-[100] overflow-y-auto no-scrollbar">
+            <div class="relative w-full aspect-video bg-zinc-900">
+                <img id="det-banner" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0b0b0b] via-transparent opacity-80"></div>
                 <button onclick="closeDetail()" class="absolute top-5 left-5 bg-black/50 w-10 h-10 rounded-full flex items-center justify-center border border-white/10">
                     <i class="fas fa-arrow-left"></i>
                 </button>
             </div>
             
-            <div class="p-6 -mt-12 relative z-10">
-                <div class="flex justify-between items-start mb-4">
-                    <h2 id="det-title" class="text-2xl font-extrabold leading-tight italic"></h2>
-                    <i id="fav-btn" class="far fa-bookmark text-2xl text-orange-play" onclick="toggleFav()"></i>
-                </div>
+            <div class="p-6 -mt-10 relative z-10">
+                <h2 id="det-title" class="text-2xl font-extrabold italic mb-4"></h2>
                 
-                <div class="flex gap-3 mb-8">
-                    <button class="flex-1 bg-orange-play text-black font-black py-4 rounded-2xl flex items-center justify-center gap-2 text-xs uppercase shadow-lg shadow-orange-500/20">
+                <div class="flex gap-3 mb-6">
+                    <button class="flex-1 bg-orange-play text-black font-black py-4 rounded-2xl flex items-center justify-center gap-2 text-xs uppercase shadow-xl shadow-orange-500/30">
                         <i class="fas fa-play"></i> Putar
                     </button>
                     <button class="flex-1 border-2 border-orange-play text-orange-play font-black py-4 rounded-2xl flex items-center justify-center gap-2 text-xs uppercase">
@@ -112,81 +90,74 @@
                     </button>
                 </div>
 
-                <div class="bg-zinc-900/40 p-5 rounded-3xl border border-zinc-800 mb-8">
-                    <p class="text-[10px] font-black text-orange-play mb-2 uppercase tracking-widest">Detail & Sinopsis</p>
-                    <p class="text-xs font-bold mb-1">Genre: <span id="det-genre-list" class="font-medium text-zinc-400"></span></p>
-                    <p id="det-desc" class="text-xs text-zinc-500 leading-relaxed italic"></p>
+                <div class="bg-zinc-900 p-5 rounded-3xl mb-8 border border-zinc-800">
+                    <p class="text-[10px] font-black text-orange-play mb-2 uppercase tracking-widest">Sinopsis & Info</p>
+                    <p class="text-[11px] font-bold mb-1">Genre: <span id="det-genre-list" class="font-normal text-zinc-400"></span></p>
+                    <p id="det-desc" class="text-xs text-zinc-400 leading-relaxed italic"></p>
                 </div>
 
-                <h3 class="font-black text-sm border-b-4 border-orange-play w-fit pb-1 mb-6 italic uppercase">Daftar Episode</h3>
-                <div id="det-episodes" class="flex flex-col gap-3 pb-32">
-                    </div>
+                <h3 class="font-black text-sm border-l-4 border-orange-play pl-3 mb-4 italic">EPISODE</h3>
+                <div id="det-episodes" class="flex flex-col gap-3 pb-32"></div>
             </div>
         </div>
 
-        <nav class="fixed bottom-0 w-full glass-nav border-t border-zinc-900 p-5 flex justify-around text-zinc-500 z-50">
-            <div onclick="navTo('home', this)" class="flex flex-col items-center gap-1 text-orange-play"><i class="fas fa-home text-2xl"></i><span class="text-[10px] font-black">HOME</span></div>
-            <div onclick="navTo('explore', this)" class="flex flex-col items-center gap-1"><i class="fas fa-compass text-2xl"></i><span class="text-[10px] font-black">EXPLORE</span></div>
-            <div onclick="navTo('list', this)" class="flex flex-col items-center gap-1"><i class="fas fa-bookmark text-2xl"></i><span class="text-[10px] font-black">MY LIST</span></div>
-            <div onclick="navTo('profile', this)" class="flex flex-col items-center gap-1"><i class="fas fa-user text-2xl"></i><span class="text-[10px] font-black">PROFILE</span></div>
+        <nav class="fixed bottom-0 w-full bg-[#111]/90 backdrop-blur-md border-t border-zinc-900 p-5 flex justify-around text-zinc-500 z-50">
+            <div onclick="navTo('home', this)" class="flex flex-col items-center gap-1 text-orange-play"><i class="fas fa-home text-2xl"></i><span class="text-[9px] font-bold">HOME</span></div>
+            <div onclick="navTo('explore', this)" class="flex flex-col items-center gap-1"><i class="fas fa-compass text-2xl"></i><span class="text-[9px] font-bold">EXPLORE</span></div>
+            <div onclick="navTo('list', this)" class="flex flex-col items-center gap-1"><i class="fas fa-bookmark text-2xl"></i><span class="text-[9px] font-bold">MY LIST</span></div>
         </nav>
     </div>
 
     <script>
         const API = "https://api.consumet.org/anime/gogoanime";
-        let cur = null;
-        const ALL_GENRES = [
-            "Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Isekai", "Romance", "Slice of Life",
-            "Supernatural", "Thriller", "Yaoi", "Yuri", "Ecchi", "Hentai", "Psychological", "Gore", "Samurai",
-            "School", "Sci-Fi", "Seinen", "Shoujo", "Shounen", "Sports", "Vampire", "Mecha", "Magic", "Military"
-        ];
+        const ALL_GENRES = ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Isekai", "Romance", "Slice of Life", "Supernatural", "Thriller", "Yaoi", "Yuri", "Ecchi", "Hentai", "Psychological", "Gore", "School", "Sci-Fi", "Seinen", "Shounen", "Sports"];
 
         window.addEventListener('load', async () => {
             await Clerk.load();
             if (!Clerk.user) { Clerk.openSignIn(); } 
             else {
                 document.getElementById('app').classList.remove('hidden');
-                initProfile();
+                Clerk.mountUserButton(document.getElementById('u-btn'));
                 fetchRecent();
                 renderGenres();
             }
         });
 
-        function initProfile() {
-            document.getElementById('u-name').innerText = Clerk.user.fullName;
-            document.getElementById('u-email').innerText = Clerk.user.primaryEmailAddress.emailAddress;
-            document.getElementById('u-avatar').innerHTML = `<img src="${Clerk.user.imageUrl}" class="w-full h-full object-cover">`;
-        }
-
         async function fetchRecent() {
-            const res = await fetch(`${API}/recent-episodes`);
-            const data = await res.json();
-            renderGrid(data.results);
+            // Reset judul dan tampilan ke Home
+            document.getElementById('section-title').innerText = "Episode Terbaru";
+            const grid = document.getElementById('anime-grid');
+            grid.innerHTML = `<div class="col-span-3 py-20 text-center animate-pulse italic text-zinc-600">Loading...</div>`;
+            
+            try {
+                const res = await fetch(`${API}/recent-episodes`);
+                const data = await res.json();
+                renderGrid(data.results);
+            } catch(e) { grid.innerHTML = "Gagal memuat data."; }
         }
 
         function renderGrid(list) {
             document.getElementById('anime-grid').innerHTML = list.map(a => `
                 <div class="anime-card flex flex-col gap-2" onclick="openDetail('${a.id}')">
-                    <div class="relative overflow-hidden rounded-2xl shadow-lg border border-zinc-800">
-                        <img src="${a.image}" class="w-full aspect-[3/4] object-cover">
-                        <span class="absolute bottom-2 left-2 text-[8px] font-black bg-orange-play text-black px-2 py-0.5 rounded-full shadow-lg">EP ${a.episodeNumber || '1'}</span>
-                    </div>
-                    <p class="text-[10px] font-black truncate px-1 uppercase italic">${a.title}</p>
+                    <img src="${a.image}" class="rounded-2xl aspect-[3/4] object-cover border border-zinc-800">
+                    <p class="text-[10px] font-bold truncate px-1 uppercase italic">${a.title}</p>
                 </div>
             `).join('');
         }
 
         function renderGenres() {
             document.getElementById('genre-grid').innerHTML = ALL_GENRES.map(g => `
-                <div onclick="searchByGenre('${g}')" class="bg-zinc-900/50 border border-zinc-800 py-5 rounded-2xl text-center font-black text-[11px] italic uppercase tracking-tighter active:bg-orange-play active:text-black">
+                <div onclick="searchGenre('${g}')" class="bg-zinc-900 border border-zinc-800 py-5 rounded-2xl text-center font-black text-[10px] italic uppercase active:bg-orange-play active:text-black">
                     ${g}
                 </div>
             `).join('');
         }
 
-        async function searchByGenre(g) {
+        async function searchGenre(g) {
             navTo('home');
-            document.getElementById('anime-grid').innerHTML = `<div class="col-span-3 text-center py-20 italic text-zinc-500">Mencari anime ${g}...</div>`;
+            document.getElementById('section-title').innerText = `Genre: ${g}`;
+            const grid = document.getElementById('anime-grid');
+            grid.innerHTML = `<div class="col-span-3 py-20 text-center italic text-zinc-600">Mencari ${g}...</div>`;
             const res = await fetch(`${API}/genre/${g.toLowerCase().replace(/\s+/g, '-')}`);
             const data = await res.json();
             renderGrid(data.results);
@@ -195,41 +166,19 @@
         async function openDetail(id) {
             const res = await fetch(`${API}/info/${id}`);
             const d = await res.json();
-            cur = d;
-            
             document.getElementById('detail-page').classList.remove('hidden');
-            document.getElementById('det-banner').src = d.image;
+            document.getElementById('det-banner').src = d.image; // Poster Fix
             document.getElementById('det-title').innerText = d.title;
             document.getElementById('det-genre-list').innerText = d.genres.join(", ");
-            document.getElementById('det-desc').innerText = d.description || "Tidak ada sinopsis.";
+            document.getElementById('det-desc').innerText = d.description || "No description.";
             
             document.getElementById('det-episodes').innerHTML = d.episodes.map(ep => `
-                <div class="flex gap-4 items-center bg-zinc-900/30 p-4 rounded-3xl border border-zinc-800 active:bg-zinc-800">
-                    <div class="w-10 h-10 bg-orange-play text-black rounded-full flex items-center justify-center font-black shadow-lg shadow-orange-500/20">
-                        <i class="fas fa-play text-[10px]"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-xs font-black italic">Episode ${ep.number}</p>
-                        <p class="text-[9px] text-zinc-500 uppercase font-bold">Tersedia HD / SD</p>
-                    </div>
-                    <i class="fas fa-chevron-right text-zinc-700"></i>
+                <div class="flex gap-4 items-center bg-zinc-900/50 p-4 rounded-3xl border border-zinc-800">
+                    <div class="w-10 h-10 bg-orange-play text-black rounded-full flex items-center justify-center font-black"><i class="fas fa-play text-[10px]"></i></div>
+                    <div class="flex-1 font-black italic text-xs">Episode ${ep.number}</div>
+                    <i class="fas fa-download text-zinc-700"></i>
                 </div>
             `).join('');
-            updateFavIcon();
-        }
-
-        function toggleFav() {
-            let favs = JSON.parse(localStorage.getItem('b_favs') || '[]');
-            const idx = favs.findIndex(f => f.id === cur.id);
-            if(idx > -1) favs.splice(idx, 1); else favs.push(cur);
-            localStorage.setItem('b_favs', JSON.stringify(favs));
-            updateFavIcon();
-        }
-
-        function updateFavIcon() {
-            let favs = JSON.parse(localStorage.getItem('b_favs') || '[]');
-            const isF = favs.some(f => f.id === cur.id);
-            document.getElementById('fav-btn').className = isF ? "fas fa-bookmark text-2xl text-orange-play" : "far fa-bookmark text-2xl text-orange-play";
         }
 
         function navTo(v, el) {
@@ -237,22 +186,10 @@
             document.getElementById(`${v}-view`).classList.remove('hidden');
             document.querySelectorAll('nav div').forEach(n => n.classList.remove('text-orange-play'));
             if(el) el.classList.add('text-orange-play');
-            if(v === 'list') {
-                let f = JSON.parse(localStorage.getItem('b_favs') || '[]');
-                document.getElementById('fav-grid').innerHTML = f.map(a => `<div class="anime-card" onclick="openDetail('${a.id}')"><img src="${a.image}" class="rounded-2xl aspect-[3/4] object-cover"><p class="mt-2 text-[10px] font-black truncate uppercase italic">${a.title}</p></div>`).join('') || '<p class="col-span-2 text-center py-20 text-zinc-600 italic text-xs">List kamu kosong.</p>';
-            }
         }
 
         function closeDetail() { document.getElementById('detail-page').classList.add('hidden'); }
-
-        document.getElementById('searchInput').onkeypress = async (e) => {
-            if(e.key === 'Enter') {
-                navTo('home');
-                const res = await fetch(`${API}/${e.target.value}`);
-                const data = await res.json();
-                renderGrid(data.results);
-            }
-        };
     </script>
 </body>
-</html>
+                        </html>
+                        

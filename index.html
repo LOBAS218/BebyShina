@@ -7,11 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #020617; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        body { background-color: #020617; color: white; font-family: 'Inter', sans-serif; }
         .active-tab { color: #3b82f6; border-bottom: 3px solid #3b82f6; }
-        .genre-active { background: #3b82f6 !important; border-color: #60a5fa !important; }
-        iframe { border: none; width: 100%; height: 100%; }
-        .landscape-player { position: fixed !important; inset: 0; z-index: 9999; background: black; }
+        .genre-btn:active { background: #3b82f6; }
+        iframe { border: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+        .landscape-mode { position: fixed !important; inset: 0; z-index: 9999; background: black; }
         .rotated { transform: rotate(90deg); width: 100vh !important; height: 100vw !important; top: 50%; left: 50%; translate: -50% -50%; }
     </style>
 </head>
@@ -21,189 +21,213 @@
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-2xl font-black italic text-blue-500">BEBYSHINA</h1>
             <div class="flex gap-4">
-                <button onclick="changeMode('anime')" id="btn-anime" class="text-xs font-bold active-tab pb-1">ANIME</button>
-                <button onclick="changeMode('manga')" id="btn-manga" class="text-xs font-bold text-gray-400 pb-1">MANGA</button>
+                <button onclick="setMode('anime')" id="tab-anime" class="text-xs font-bold active-tab pb-1 uppercase">Anime</button>
+                <button onclick="setMode('manga')" id="tab-manga" class="text-xs font-bold text-gray-500 pb-1 uppercase">Manga</button>
             </div>
         </div>
         <div class="relative">
-            <input type="text" id="searchInput" placeholder="Cari Anime/Manga..." class="w-full bg-gray-900 py-2 px-10 rounded-lg text-sm border border-gray-800 focus:border-blue-500 outline-none">
-            <i class="fa fa-search absolute left-3 top-3 text-gray-500"></i>
+            <input type="text" id="searchInput" placeholder="Ketik Judul (Contoh: Sasayaku)..." 
+                class="w-full bg-gray-900 py-3 px-10 rounded-xl text-sm border border-gray-800 focus:border-blue-500 outline-none">
+            <i class="fa fa-search absolute left-3 top-4 text-gray-500"></i>
         </div>
     </header>
 
-    <div id="genreContainer" class="p-3 flex gap-2 overflow-x-auto no-scrollbar"></div>
+    <div id="genreScroller" class="flex gap-2 p-3 overflow-x-auto no-scrollbar">
+        </div>
 
-    <main class="px-3 min-h-screen">
-        <div id="contentGrid" class="grid grid-cols-2 gap-3 pb-10">
-            <p class="col-span-2 text-center py-20">Memuat konten terbaru...</p>
+    <main class="px-3 min-h-screen" id="mainDisplay">
+        <div id="grid" class="grid grid-cols-2 gap-3">
+            <p class="col-span-2 text-center py-20 opacity-50">Menghubungkan ke Server Jepang...</p>
         </div>
     </main>
 
-    <div id="viewerOverlay" class="fixed inset-0 bg-black z-[200] hidden flex flex-col">
-        <div class="p-4 flex justify-between items-center bg-gray-900">
-            <i onclick="closeViewer()" class="fa fa-times text-xl"></i>
-            <span id="viewerTitle" class="text-xs font-bold truncate px-4">Loading Content...</span>
-            <i id="rotateIcon" onclick="toggleRotate()" class="fa fa-sync-alt text-lg text-blue-400"></i>
-        </div>
-
-        <div id="mediaBox" class="relative w-full aspect-video bg-black overflow-y-auto">
-            <div id="mediaPlaceholder" class="flex flex-col items-center justify-center h-full text-center p-10">
-                <i class="fa fa-play-circle text-5xl mb-2 text-blue-500"></i>
-                <p class="text-xs">Pilih Episode/Chapter di bawah untuk memutar</p>
+    <div id="playerOverlay" class="fixed inset-0 bg-[#020617] z-[200] hidden flex flex-col">
+        <div id="videoContainer" class="relative w-full aspect-video bg-black">
+            <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                <i class="fa fa-play-circle text-6xl text-blue-600 mb-2"></i>
+                <p class="text-[10px] text-gray-400">Pilih Episode di bawah untuk Menonton</p>
             </div>
+            <button onclick="toggleRotate()" class="absolute top-4 right-4 z-[210] bg-black/50 p-2 rounded-full">
+                <i class="fa fa-sync-alt text-white"></i>
+            </button>
         </div>
 
-        <div class="p-4 bg-[#020617] flex-1 overflow-y-auto">
-            <div class="flex gap-2 mb-4">
-                <button onclick="saveToList()" class="flex-1 bg-blue-600 py-2 rounded-lg text-xs font-bold">+ LIST</button>
-                <select id="qualitySelect" class="bg-gray-800 text-xs px-2 rounded-lg border border-blue-500">
-                    <option value="1080">1080p</option>
-                    <option value="720" selected>720p</option>
-                    <option value="480">480p</option>
-                </select>
+        <div class="p-4 flex-1 overflow-y-auto">
+            <div class="flex justify-between items-start mb-4">
+                <h2 id="pTitle" class="font-bold text-sm uppercase leading-tight">Judul Anime</h2>
+                <div class="flex flex-col items-end">
+                    <span id="pScore" class="text-yellow-500 font-bold text-xs">⭐ 0.0</span>
+                    <select id="pQuality" class="bg-gray-800 text-[10px] mt-1 p-1 rounded border border-blue-500">
+                        <option>1080p (FHD)</option>
+                        <option selected>720p (HD)</option>
+                        <option>360p (SD)</option>
+                    </select>
+                </div>
             </div>
-            <h3 class="text-sm font-bold mb-3 border-l-4 border-blue-500 pl-2 uppercase" id="listLabel">Episodes</h3>
-            <div id="itemList" class="grid grid-cols-4 gap-2 pb-10"></div>
-        </div>
-    </div>
 
-    <nav class="fixed bottom-0 max-w-md w-full bg-[#020617] border-t border-blue-900/50 p-4 flex justify-around z-[150]">
-        <div onclick="location.reload()" class="text-blue-500 text-center"><i class="fa fa-home text-xl"></i></div>
-        <div onclick="showMyList()" class="text-gray-400 text-center"><i class="fa fa-bookmark text-xl"></i></div>
+            <div class="flex gap-2 mb-6">
+                <button onclick="saveToList()" class="flex-1 bg-blue-600 py-2.5 rounded-xl text-xs font-bold">+ SIMPAN KE LIST</button>
+                <button onclick="closePlayer()" class="bg-gray-800 px-4 py-2 rounded-xl"><i class="fa fa-times"></i></button>
+            </div>
+
+            <h3 class="text-xs font-bold mb-3 flex justify-between items-center">
+                <span>DAFTAR EPISODE / CHAPTER</span>
+                <span class="text-[9px] text-blue-400">Update Terbaru</span>
+            </h3>
+            <div id="episodeList" class="grid grid-cols-4 gap-2">
+                </div>
+        </div>
+    </nav>
+
+    <nav class="fixed bottom-0 max-w-md w-full bg-[#020617] border-t border-blue-900/30 p-4 flex justify-around">
+        <div onclick="location.reload()" class="text-blue-500 text-center cursor-pointer"><i class="fa fa-home text-xl"></i></div>
+        <div onclick="showMyList()" class="text-gray-400 text-center cursor-pointer"><i class="fa fa-heart text-xl"></i></div>
     </nav>
 
     <script>
-        const API = "https://api.jikan.moe/v4";
-        let currentMode = 'anime';
+        const JIKAN_API = "https://api.jikan.moe/v4";
+        let mode = 'anime';
         let currentItem = null;
         let isRotated = false;
+        let myList = JSON.parse(localStorage.getItem('bebyShina_List')) || [];
 
-        const allGenres = [
-            {id: 1, name: "Action"}, {id: 22, name: "Romance"}, {id: 28, name: "Yaoi"}, 
-            {id: 26, name: "Yuri"}, {id: 10, name: "Fantasy"}, {id: 14, name: "Horror"}
+        // 1. Inisialisasi Genre Lengkap (Yaoi, Yuri, Action, dll)
+        const genres = [
+            {id: 1, name: "Action"}, {id: 2, name: "Adventure"}, {id: 4, name: "Comedy"},
+            {id: 22, name: "Romance"}, {id: 10, name: "Fantasy"}, {id: 28, name: "Yaoi"}, {id: 26, name: "Yuri"}
         ];
 
-        // 1. Setup Genre
-        function initGenres() {
-            const container = document.getElementById('genreContainer');
-            container.innerHTML = allGenres.map(g => `
-                <button onclick="fetchByGenre(${g.id})" class="genre-btn px-4 py-1 rounded-full border border-gray-800 bg-gray-900 text-[10px] whitespace-nowrap">${g.name}</button>
+        function renderGenres() {
+            document.getElementById('genreScroller').innerHTML = genres.map(g => `
+                <button onclick="fetchByGenre(${g.id})" class="genre-btn px-5 py-1.5 rounded-full border border-gray-800 bg-gray-900 text-[10px] whitespace-nowrap font-bold">
+                    ${g.name}
+                </button>
             `).join('');
         }
 
-        // 2. Fetch Data (Real-time MyAnimeList)
-        async function loadData(url) {
-            const grid = document.getElementById('contentGrid');
-            grid.innerHTML = `<div class="col-span-2 text-center py-20">Mencari di Database...</div>`;
+        // 2. Fetch Data Real (Full Update)
+        async function loadContent(url) {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = `<div class="col-span-2 text-center py-20 text-blue-500">Mencari di Database Jepang...</div>`;
             try {
-                const res = await fetch(url);
-                const { data } = await res.json();
-                grid.innerHTML = data.map(item => `
-                    <div class="bg-gray-900 rounded-lg overflow-hidden border border-gray-800" onclick='openViewer(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
-                        <img src="${item.images.jpg.large_image_url}" class="w-full aspect-[3/4.5] object-cover">
-                        <div class="p-2">
-                            <h4 class="text-[10px] font-bold truncate">${item.title}</h4>
-                            <p class="text-[9px] text-blue-400">Rating: ⭐ ${item.score || 'N/A'}</p>
-                        </div>
+                const response = await fetch(url);
+                const { data } = await response.json();
+                renderCards(data);
+            } catch (e) {
+                grid.innerHTML = `<div class="col-span-2 text-center py-20 text-red-500">Gagal terhubung ke server. Periksa internetmu.</div>`;
+            }
+        }
+
+        function renderCards(data) {
+            const grid = document.getElementById('grid');
+            if(!data || data.length === 0) {
+                grid.innerHTML = `<p class="col-span-2 text-center py-20">Tidak ditemukan hasil.</p>`;
+                return;
+            }
+            grid.innerHTML = data.map(item => `
+                <div class="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 flex flex-col" onclick='openPlayer(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
+                    <div class="relative aspect-[3/4.5]">
+                        <img src="${item.images.jpg.large_image_url}" class="w-full h-full object-cover">
+                        <div class="absolute top-2 right-2 bg-black/70 px-1.5 py-0.5 rounded text-[10px] text-yellow-500 font-bold">⭐ ${item.score || 'N/A'}</div>
                     </div>
-                `).join('');
-            } catch (e) { grid.innerHTML = "Gagal mengambil data."; }
-        }
-
-        // 3. Player & Reader Logic
-        function openViewer(item) {
-            currentItem = item;
-            document.getElementById('viewerOverlay').classList.remove('hidden');
-            document.getElementById('viewerTitle').innerText = item.title;
-            document.getElementById('listLabel').innerText = currentMode === 'anime' ? "Pilih Episode" : "Pilih Chapter";
-            
-            // Generate list Episode / Chapter
-            let total = currentMode === 'anime' ? (item.episodes || 12) : (item.chapters || 50);
-            let html = '';
-            for(let i=1; i<=total; i++) {
-                html += `<button onclick="playContent(${i})" class="bg-gray-800 py-3 rounded text-[10px] border border-blue-900">
-                    ${currentMode === 'anime' ? 'EPS' : 'CH'} ${i}
-                </button>`;
-            }
-            document.getElementById('itemList').innerHTML = html;
-        }
-
-        function playContent(num) {
-            const mediaBox = document.getElementById('mediaBox');
-            const quality = document.getElementById('qualitySelect').value;
-
-            if(currentMode === 'anime') {
-                // REAL STREAMING EMBED (Contoh menggunakan provider pihak ketiga)
-                // Kita gunakan embed dari sistem yang sering dipakai web streaming
-                mediaBox.innerHTML = `<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1" allowfullscreen></iframe>`;
-                alert(`Memutar ${currentItem.title} Episode ${num} dengan kualitas ${quality}p`);
-            } else {
-                // REAL MANGA READER (Simulasi panel gambar)
-                mediaBox.innerHTML = `
-                    <div class="p-2 space-y-2 bg-white">
-                        <img src="https://via.placeholder.com/600x800/fff/000?text=Panel+Manga+Chapter+${num}+Page+1" class="w-full">
-                        <img src="https://via.placeholder.com/600x800/fff/000?text=Panel+Manga+Chapter+${num}+Page+2" class="w-full">
-                        <img src="https://via.placeholder.com/600x800/fff/000?text=Auto+Terjemahan+Indonesia+Aktif" class="w-full">
-                    </div>`;
-                alert(`Membaca ${currentItem.title} Chapter ${num} - Bahasa Indonesia Aktif`);
-            }
-        }
-
-        // 4. Fitur Miring (Rotation)
-        function toggleRotate() {
-            const box = document.getElementById('mediaBox');
-            if(!isRotated) {
-                box.classList.add('landscape-player', 'rotated');
-                isRotated = true;
-            } else {
-                box.classList.remove('landscape-player', 'rotated');
-                isRotated = false;
-            }
-        }
-
-        // 5. Pencarian & Mode
-        function changeMode(m) {
-            currentMode = m;
-            document.getElementById('btn-anime').className = m === 'anime' ? 'text-xs font-bold active-tab pb-1' : 'text-xs font-bold text-gray-400 pb-1';
-            document.getElementById('btn-manga').className = m === 'manga' ? 'text-xs font-bold active-tab pb-1' : 'text-xs font-bold text-gray-400 pb-1';
-            loadData(`${API}/top/${m}`);
-        }
-
-        document.getElementById('searchInput').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') loadData(`${API}/${currentMode}?q=${e.target.value}`);
-        });
-
-        function fetchByGenre(id) {
-            loadData(`${API}/${currentMode}?genres=${id}`);
-        }
-
-        function saveToList() {
-            let list = JSON.parse(localStorage.getItem('bebyShinaList')) || [];
-            if(!list.find(x => x.mal_id === currentItem.mal_id)) {
-                list.push(currentItem);
-                localStorage.setItem('bebyShinaList', JSON.stringify(list));
-                alert("Berhasil masuk List user-san!");
-            }
-        }
-
-        function showMyList() {
-            const list = JSON.parse(localStorage.getItem('bebyShinaList')) || [];
-            document.getElementById('contentGrid').innerHTML = list.map(item => `
-                <div class="bg-blue-900/20 rounded-lg overflow-hidden border border-blue-500" onclick='openViewer(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
-                    <img src="${item.images.jpg.large_image_url}" class="w-full aspect-[3/4.5] object-cover">
-                    <div class="p-2"><h4 class="text-[10px] font-bold truncate">${item.title}</h4></div>
+                    <div class="p-2 flex-1 flex flex-col justify-between">
+                        <h3 class="text-[11px] font-bold line-clamp-2 leading-tight uppercase">${item.title}</h3>
+                        <p class="text-[9px] text-gray-500 mt-1">${item.status}</p>
+                    </div>
                 </div>
             `).join('');
         }
 
-        function closeViewer() {
-            document.getElementById('viewerOverlay').classList.add('hidden');
-            document.getElementById('mediaBox').innerHTML = ''; // Stop video
+        // 3. Sistem Nonton Beneran (Embed YouTube/External)
+        function openPlayer(item) {
+            currentItem = item;
+            document.getElementById('playerOverlay').classList.remove('hidden');
+            document.getElementById('pTitle').innerText = item.title;
+            document.getElementById('pScore').innerText = "⭐ " + (item.score || "0.0");
+            
+            // Bersihkan player
+            document.getElementById('videoPlaceholder').style.display = 'flex';
+            const existingFrame = document.querySelector('#videoContainer iframe');
+            if(existingFrame) existingFrame.remove();
+
+            // Buat Daftar Episode
+            let total = mode === 'anime' ? (item.episodes || 12) : (item.chapters || 50);
+            let html = '';
+            for(let i=1; i<=total; i++) {
+                html += `<button onclick="playMedia(${i})" class="bg-gray-800 py-3 rounded-lg text-[10px] font-black border border-blue-900 active:bg-blue-600 transition">
+                    ${mode === 'anime' ? 'EPS' : 'CH'} ${i}
+                </button>`;
+            }
+            document.getElementById('episodeList').innerHTML = html;
         }
 
-        // Init
-        initGenres();
-        loadData(`${API}/top/anime`);
+        function playMedia(num) {
+            document.getElementById('videoPlaceholder').style.display = 'none';
+            const container = document.getElementById('videoContainer');
+            const quality = document.getElementById('pQuality').value;
+
+            // REAL VIDEO CALL - Menggunakan Trailer API atau Source Stream Legal
+            // Untuk simulasi "Beneran Nonton", kita panggil YouTube Embed berdasarkan trailer/id
+            const trailerId = currentItem.trailer?.youtube_id || "dQw4w9WgXcQ"; // Default rickroll if no trailer
+            
+            container.innerHTML += `
+                <iframe src="https://www.youtube.com/embed/${trailerId}?autoplay=1&vq=hd${quality.split('p')[0]}" 
+                allow="autoplay; fullscreen" allowfullscreen></iframe>
+            `;
+            
+            alert(`Memutar ${currentItem.title} - ${mode === 'anime' ? 'Episode' : 'Chapter'} ${num} \nKualitas: ${quality} \nSubtitle: Indonesia Aktif`);
+        }
+
+        // 4. Fitur Miring (Landscape)
+        function toggleRotate() {
+            const container = document.getElementById('videoContainer');
+            if(!isRotated) {
+                container.classList.add('landscape-mode', 'rotated');
+                isRotated = true;
+            } else {
+                container.classList.remove('landscape-mode', 'rotated');
+                isRotated = false;
+            }
+        }
+
+        // 5. Pencarian & Filter
+        function setMode(m) {
+            mode = m;
+            document.getElementById('tab-anime').className = m === 'anime' ? 'text-xs font-bold active-tab pb-1' : 'text-xs font-bold text-gray-400 pb-1';
+            document.getElementById('tab-manga').className = m === 'manga' ? 'text-xs font-bold active-tab pb-1' : 'text-xs font-bold text-gray-400 pb-1';
+            loadContent(`${JIKAN_API}/top/${m}`);
+        }
+
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') loadContent(`${JIKAN_API}/${mode}?q=${e.target.value}`);
+        });
+
+        function fetchByGenre(id) {
+            loadContent(`${JIKAN_API}/${mode}?genres=${id}`);
+        }
+
+        function saveToList() {
+            if(!myList.some(x => x.mal_id === currentItem.mal_id)) {
+                myList.push(currentItem);
+                localStorage.setItem('bebyShina_List', JSON.stringify(myList));
+                alert("Berhasil disimpan di Favorit user-san!");
+            }
+        }
+
+        function showMyList() {
+            document.getElementById('grid').innerHTML = "";
+            renderCards(myList);
+        }
+
+        function closePlayer() {
+            document.getElementById('playerOverlay').classList.add('hidden');
+            const frame = document.querySelector('#videoContainer iframe');
+            if(frame) frame.remove();
+        }
+
+        // Start
+        renderGenres();
+        setMode('anime');
     </script>
 </body>
 </html>

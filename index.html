@@ -2,203 +2,211 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BebyShina - Premium Anime</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BebyShina - Cinema Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <script
-      async
-      crossorigin="anonymous"
-      data-clerk-publishable-key="pk_test_dG9wLXdlZXZpbC04Mi5jbGVyay5hY2NvdW50cy5kZXYk"
-      src="https://top-weevil-82.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
-      type="text/javascript"
-    ></script>
-
     <style>
-        body { background-color: #0d0d0d; color: white; font-family: 'Poppins', sans-serif; }
-        .bg-orange-play { background-color: #f39c12; }
-        .text-orange-play { color: #f39c12; }
-        .anime-card { transition: all 0.3s ease; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        #loading-bar { height: 3px; width: 0%; transition: width 0.4s; }
+        body { background-color: #020617; color: white; font-family: 'sans-serif'; overflow-x: hidden; }
+        .active-tab { color: #3b82f6; border-bottom: 3px solid #3b82f6; }
+        .genre-btn.active { background: #3b82f6; border-color: #60a5fa; }
+        
+        /* Player Styles */
+        #mainVideo { width: 100%; height: 100%; background: black; }
+        .landscape-mode { 
+            position: fixed !important; top: 0; left: 0; width: 100vw !important; height: 100vh !important; 
+            z-index: 999; transform: rotate(0deg); background: black;
+        }
+        .rotated { transform: rotate(90deg); width: 100vh !important; height: 100vw !important; top: 50%; left: 50%; translate: -50% -50%; }
     </style>
 </head>
-<body class="pb-24">
+<body class="max-w-md mx-auto min-h-screen pb-24">
 
-    <div class="fixed top-0 left-0 z-[100] w-full bg-zinc-900">
-        <div id="loading-bar" class="bg-orange-play"></div>
-    </div>
-
-    <div id="app" class="hidden">
-        <header class="p-5 flex justify-between items-center sticky top-0 bg-[#0d0d0d]/90 backdrop-blur-md z-50">
-            <div class="flex items-center gap-2">
-                <i class="fas fa-crown text-orange-play text-2xl"></i>
-                <h1 class="text-2xl font-extrabold italic tracking-tighter">BEBY<span class="text-orange-play">SHINA</span></h1>
+    <header class="p-4 sticky top-0 bg-[#020617] z-[50] border-b border-blue-900/30">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-2xl font-black italic text-blue-500 uppercase">BebyShina</h1>
+            <div class="flex gap-3 text-[10px] font-bold">
+                <button onclick="setMode('anime')" id="t-anime" class="active-tab">ANIME</button>
+                <button onclick="setMode('manga')" id="t-manga" class="text-gray-500">MANGA</button>
             </div>
-            <div id="user-btn"></div>
-        </header>
+        </div>
+        <input type="text" id="srch" placeholder="Cari Anime/Manga..." class="w-full bg-gray-900 p-2 rounded-lg text-xs outline-none border border-gray-800 focus:border-blue-500">
+    </header>
 
-        <div class="px-5 mb-6">
-            <input type="text" id="searchInput" placeholder="Cari Anime..." class="w-full bg-zinc-900 border border-zinc-800 rounded-2xl py-4 px-6 text-sm outline-none focus:border-orange-play">
+    <div id="genreBox" class="p-3 flex gap-2 overflow-x-auto no-scrollbar"></div>
+
+    <main class="px-3">
+        <h2 id="sectionLabel" class="text-xs font-bold mb-3 text-blue-400">🔥 REKOMENDASI TERBARU</h2>
+        <div id="contentGrid" class="grid grid-cols-2 gap-3"></div>
+    </main>
+
+    <div id="playerView" class="fixed inset-0 bg-black z-[100] hidden flex flex-col">
+        <div class="p-4 flex justify-between items-center bg-gradient-to-b from-black to-transparent absolute top-0 w-full z-10">
+            <i onclick="closePlayer()" class="fa fa-chevron-left text-xl"></i>
+            <span id="videoTitle" class="text-xs font-bold truncate px-4">Loading...</span>
+            <i onclick="toggleRotation()" class="fa fa-sync-alt text-lg text-blue-400"></i>
         </div>
 
-        <main id="main-content">
-            <div id="home-view" class="view px-5">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 id="section-title" class="font-extrabold text-lg italic uppercase tracking-tighter">Episode Terbaru</h2>
-                    <button onclick="fetchAnime('recent-episodes')" class="bg-orange-play/10 text-orange-play px-4 py-1.5 rounded-full text-[10px] font-black italic">
-                        <i class="fas fa-sync-alt mr-1"></i> REFRESH
-                    </button>
-                </div>
-                <div id="anime-grid" class="grid grid-cols-3 gap-4">
-                    </div>
-            </div>
-
-            <div id="explore-view" class="view hidden px-5">
-                <h2 class="text-xl font-black mb-6 italic">GENRE LENGKAP</h2>
-                <div id="genre-grid" class="grid grid-cols-2 gap-3"></div>
-            </div>
-
-            <div id="list-view" class="view hidden px-5">
-                <h2 class="text-xl font-black mb-6 italic">MY LIST</h2>
-                <div id="fav-grid" class="grid grid-cols-2 gap-4"></div>
-            </div>
-        </main>
-
-        <div id="detail-page" class="hidden fixed inset-0 bg-[#0d0d0d] z-[100] overflow-y-auto no-scrollbar">
-            <div class="relative w-full aspect-video">
-                <img id="det-banner" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-[#0d0d0d]"></div>
-                <button onclick="closeDetail()" class="absolute top-5 left-5 bg-black/50 w-10 h-10 rounded-full flex items-center justify-center border border-white/10">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-            </div>
-            <div class="p-6 -mt-10 relative z-10">
-                <h2 id="det-title" class="text-2xl font-extrabold italic mb-4"></h2>
-                <div class="flex gap-3 mb-8">
-                    <button class="flex-1 bg-orange-play text-black font-black py-4 rounded-2xl text-xs uppercase shadow-xl">PUTAR</button>
-                    <button class="flex-1 border-2 border-orange-play text-orange-play font-black py-4 rounded-2xl text-xs uppercase">DOWNLOAD</button>
-                </div>
-                <div class="bg-zinc-900 p-5 rounded-3xl border border-zinc-800 mb-6">
-                    <p class="text-[10px] font-black text-orange-play mb-1">GENRE</p>
-                    <p id="det-genre-list" class="text-xs text-zinc-400 mb-3"></p>
-                    <p id="det-desc" class="text-[11px] text-zinc-500 leading-relaxed italic"></p>
-                </div>
-                <h3 class="font-black text-sm mb-4">EPISODE</h3>
-                <div id="det-episodes" class="flex flex-col gap-3 pb-20"></div>
+        <div id="videoWrapper" class="relative w-full aspect-video bg-black flex items-center justify-center">
+            <video id="mainVideo" controls crossorigin="anonymous">
+                <source id="videoSource" src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+                Subtitles not supported.
+            </video>
+            
+            <div class="absolute bottom-12 right-2 flex gap-2">
+                <select onchange="changeQuality(this.value)" class="bg-black/70 text-[10px] p-1 rounded border border-blue-500">
+                    <option value="1080">1080p</option>
+                    <option value="720" selected>720p</option>
+                    <option value="360">360p</option>
+                </select>
+                <select class="bg-black/70 text-[10px] p-1 rounded border border-blue-500">
+                    <option>Indo (Auto)</option>
+                    <option>English</option>
+                </select>
             </div>
         </div>
 
-        <nav class="fixed bottom-0 w-full bg-[#111]/90 backdrop-blur-md border-t border-zinc-900 p-5 flex justify-around text-zinc-500 z-50">
-            <div onclick="switchNav('home', this)" class="flex flex-col items-center gap-1 text-orange-play"><i class="fas fa-home text-2xl"></i><span class="text-[9px] font-bold">HOME</span></div>
-            <div onclick="switchNav('explore', this)" class="flex flex-col items-center gap-1"><i class="fas fa-compass text-2xl"></i><span class="text-[9px] font-bold">EXPLORE</span></div>
-            <div onclick="switchNav('list', this)" class="flex flex-col items-center gap-1"><i class="fas fa-bookmark text-2xl"></i><span class="text-[9px] font-bold">MY LIST</span></div>
-        </nav>
+        <div class="p-4 flex-1 overflow-y-auto bg-[#020617]">
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="saveToList()" class="bg-blue-600 px-6 py-2 rounded-full text-xs font-bold w-full mr-2">+ TAMBAHKAN KE LIST</button>
+            </div>
+            <h3 class="text-sm font-bold mb-3 uppercase border-l-4 border-blue-500 pl-2">Pilih Episode</h3>
+            <div id="epsList" class="grid grid-cols-4 gap-2"></div>
+        </div>
     </div>
+
+    <nav class="fixed bottom-0 max-w-md w-full bg-[#020617] border-t border-blue-900/40 p-4 flex justify-around">
+        <div onclick="location.reload()" class="text-blue-500 text-center"><i class="fa fa-home"></i><br><span class="text-[9px]">Home</span></div>
+        <div onclick="showMyList()" class="text-gray-400 text-center"><i class="fa fa-bookmark"></i><br><span class="text-[9px]">My List</span></div>
+    </nav>
 
     <script>
-        // PAKAI PROVIDER CADANGAN JIKA UTAMA MATI
-        const PROVIDERS = [
-            "https://api.consumet.org/anime/gogoanime",
-            "https://api-consumet-org-five.vercel.app/anime/gogoanime"
+        const API = "https://api.jikan.moe/v4";
+        let mode = 'anime';
+        let currentItem = null;
+        let isRotated = false;
+
+        const genres = [
+            {id: 1, name: "Action"}, {id: 22, name: "Romance"}, 
+            {id: 28, name: "Yaoi"}, {id: 26, name: "Yuri"}, {id: 10, name: "Fantasy"}
         ];
-        let currentProvider = PROVIDERS[0];
 
-        const ALL_GENRES = ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Isekai", "Romance", "Slice of Life", "Yaoi", "Yuri", "Ecchi", "Hentai", "Psychological", "Gore"];
+        // Init Genre
+        function renderGenres() {
+            document.getElementById('genreBox').innerHTML = genres.map(g => `
+                <button onclick="fetchByGenre(${g.id})" class="genre-btn px-4 py-1.5 rounded-full border border-gray-800 bg-gray-900 text-[10px] whitespace-nowrap">
+                    ${g.name}
+                </button>
+            `).join('');
+        }
 
-        window.addEventListener('load', async () => {
-            await Clerk.load();
-            if (!Clerk.user) { Clerk.openSignIn(); } 
-            else {
-                document.getElementById('app').classList.remove('hidden');
-                Clerk.mountUserButton(document.getElementById('user-btn'));
-                fetchAnime('recent-episodes');
-                renderGenres();
+        async function loadContent(url) {
+            const grid = document.getElementById('contentGrid');
+            grid.innerHTML = `<p class="col-span-2 text-center py-10">Searching...</p>`;
+            try {
+                const res = await fetch(url);
+                const { data } = await res.json();
+                grid.innerHTML = data.map(item => `
+                    <div class="bg-gray-900 rounded overflow-hidden shadow-lg border border-gray-800" onclick='openVideo(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
+                        <img src="${item.images.jpg.large_image_url}" class="w-full aspect-[3/4.5] object-cover">
+                        <div class="p-2">
+                            <h4 class="text-[10px] font-bold truncate uppercase">${item.title}</h4>
+                            <p class="text-[8px] text-blue-400">Score: ${item.score || '8.0'}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) { grid.innerHTML = "Gagal mengambil data."; }
+        }
+
+        function openVideo(item) {
+            currentItem = item;
+            document.getElementById('playerView').classList.remove('hidden');
+            document.getElementById('videoTitle').innerText = item.title;
+            const video = document.getElementById('mainVideo');
+            video.play(); // Auto play saat dibuka
+
+            let epsHtml = '';
+            let total = item.episodes || 12;
+            for(let i=1; i<=total; i++) {
+                epsHtml += `<button onclick="changeEps(${i})" class="bg-gray-800 py-3 rounded text-[10px] border border-blue-900">EP ${i}</button>`;
             }
+            document.getElementById('epsList').innerHTML = epsHtml;
+        }
+
+        function changeEps(n) {
+            alert("Memutar Episode " + n);
+            const video = document.getElementById('mainVideo');
+            video.currentTime = 0;
+            video.play();
+        }
+
+        function changeQuality(res) {
+            const video = document.getElementById('mainVideo');
+            const time = video.currentTime;
+            alert("Kualitas diubah ke " + res + "p");
+            // Simulasi ganti source
+            document.getElementById('videoSource').src = "https://www.w3schools.com/html/mov_bbb.mp4?res=" + res;
+            video.load();
+            video.currentTime = time;
+            video.play();
+        }
+
+        function toggleRotation() {
+            const wrapper = document.getElementById('videoWrapper');
+            if(!isRotated) {
+                wrapper.classList.add('landscape-mode', 'rotated');
+                isRotated = true;
+            } else {
+                wrapper.classList.remove('landscape-mode', 'rotated');
+                isRotated = false;
+            }
+        }
+
+        function saveToList() {
+            let list = JSON.parse(localStorage.getItem('bebyFav')) || [];
+            if(!list.find(x => x.mal_id === currentItem.mal_id)) {
+                list.push(currentItem);
+                localStorage.setItem('bebyFav', JSON.stringify(list));
+                alert("Berhasil masuk My List user-san!");
+            }
+        }
+
+        function showMyList() {
+            const data = JSON.parse(localStorage.getItem('bebyFav')) || [];
+            document.getElementById('sectionLabel').innerText = "DAFTAR FAVORIT SAYA";
+            document.getElementById('contentGrid').innerHTML = data.map(item => `
+                 <div class="bg-gray-900 rounded overflow-hidden border border-blue-900" onclick='openVideo(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
+                    <img src="${item.images.jpg.large_image_url}" class="w-full aspect-[3/4.5] object-cover">
+                    <div class="p-2"><h4 class="text-[10px] font-bold truncate">${item.title}</h4></div>
+                </div>
+            `).join('');
+        }
+
+        function setMode(m) {
+            mode = m;
+            document.getElementById('t-anime').className = m === 'anime' ? 'active-tab' : 'text-gray-500';
+            document.getElementById('t-manga').className = m === 'manga' ? 'active-tab' : 'text-gray-500';
+            loadContent(`${API}/top/${m}`);
+        }
+
+        function fetchByGenre(id) {
+            loadContent(`${API}/${mode}?genres=${id}`);
+        }
+
+        function closePlayer() {
+            const video = document.getElementById('mainVideo');
+            video.pause();
+            document.getElementById('playerView').classList.add('hidden');
+        }
+
+        // Search engine
+        document.getElementById('srch').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') loadContent(`${API}/${mode}?q=${e.target.value}`);
         });
 
-        async function fetchAnime(path) {
-            updateLoading(40);
-            const grid = document.getElementById('anime-grid');
-            try {
-                const res = await fetch(`${currentProvider}/${path}`);
-                if (!res.ok) throw new Error();
-                const data = await res.json();
-                renderGrid(data.results);
-                updateLoading(100);
-            } catch (e) {
-                // Switch ke provider cadangan kalau error
-                currentProvider = PROVIDERS[1];
-                fetchAnime(path);
-            }
-        }
-
-        function renderGrid(list) {
-            document.getElementById('anime-grid').innerHTML = list.map(a => `
-                <div class="anime-card flex flex-col gap-2" onclick="openDetail('${a.id}')">
-                    <img src="${a.image}" class="rounded-2xl aspect-[3/4] object-cover border border-zinc-800">
-                    <p class="text-[10px] font-black truncate uppercase italic">${a.title}</p>
-                </div>
-            `).join('');
-        }
-
-        function renderGenres() {
-            document.getElementById('genre-grid').innerHTML = ALL_GENRES.map(g => `
-                <div onclick="searchByGenre('${g}')" class="bg-zinc-900 border border-zinc-800 py-5 rounded-2xl text-center font-black text-[10px] uppercase active:bg-orange-play active:text-black">
-                    ${g}
-                </div>
-            `).join('');
-        }
-
-        async function searchByGenre(g) {
-            switchNav('home');
-            document.getElementById('section-title').innerText = `GENRE: ${g}`;
-            fetchAnime(`genre/${g.toLowerCase().replace(/\s+/g, '-')}`);
-        }
-
-        async function openDetail(id) {
-            updateLoading(50);
-            const res = await fetch(`${currentProvider}/info/${id}`);
-            const d = await res.json();
-            document.getElementById('detail-page').classList.remove('hidden');
-            document.getElementById('det-banner').src = d.image;
-            document.getElementById('det-title').innerText = d.title;
-            document.getElementById('det-genre-list').innerText = d.genres.join(", ");
-            document.getElementById('det-desc').innerText = d.description || "Sinopsis tidak tersedia.";
-            document.getElementById('det-episodes').innerHTML = d.episodes.map(ep => `
-                <div class="flex gap-4 items-center bg-zinc-900 p-4 rounded-3xl border border-zinc-800">
-                    <div class="w-10 h-10 bg-orange-play text-black rounded-full flex items-center justify-center font-black"><i class="fas fa-play text-[10px]"></i></div>
-                    <div class="flex-1 font-black italic text-xs">Episode ${ep.number}</div>
-                </div>
-            `).join('');
-            updateLoading(100);
-        }
-
-        function switchNav(v, el) {
-            document.querySelectorAll('.view').forEach(x => x.classList.add('hidden'));
-            document.getElementById(`${v}-view`).classList.remove('hidden');
-            document.querySelectorAll('nav div').forEach(n => n.classList.remove('text-orange-play'));
-            if(el) el.classList.add('text-orange-play');
-            if(v === 'home' && !el) document.querySelector('nav div:first-child').classList.add('text-orange-play');
-        }
-
-        function updateLoading(pct) {
-            const bar = document.getElementById('loading-bar');
-            bar.style.width = pct + "%";
-            if(pct >= 100) setTimeout(() => bar.style.width = "0%", 500);
-        }
-
-        function closeDetail() { document.getElementById('detail-page').classList.add('hidden'); }
-
-        document.getElementById('searchInput').onkeypress = async (e) => {
-            if(e.key === 'Enter') {
-                switchNav('home');
-                document.getElementById('section-title').innerText = "HASIL PENCARIAN";
-                fetchAnime(e.target.value);
-            }
-        };
+        // Start
+        renderGenres();
+        loadContent(`${API}/top/anime`);
     </script>
 </body>
 </html>

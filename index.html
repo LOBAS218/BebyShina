@@ -3,272 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BebyShina - Official</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>BebyShina - Private Anime</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css" />
     
+    <script
+      async
+      crossorigin="anonymous"
+      data-clerk-publishable-key="pk_test_dG9wLXdlZXZpbC04Mi5jbGVyay5hY2NvdW50cy5kZXYk"
+      src="https://top-weevil-82.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+      type="text/javascript"
+    ></script>
+
     <style>
-        :root {
-            --pink-glow: #ff007f;
-            --pink-soft: #ff85c1;
-            --bg-glass: rgba(0, 0, 0, 0.85);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            background: #000;
-        }
-
-        /* Perbaikan Video: Mengurangi efek zoom agar lebih proporsional */
-        #bg-video {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
-            z-index: -1;
-            transform: translate(-50%, -50%);
-            object-fit: cover;
-            filter: brightness(0.35);
-        }
-
-        .card {
-            background: var(--bg-glass);
-            width: 90%;
-            max-width: 360px;
-            max-height: 85vh;
-            padding: 25px;
-            border-radius: 30px;
-            border: 1px solid var(--pink-glow);
-            box-shadow: 0 0 30px rgba(255, 0, 127, 0.3);
-            text-align: center;
-            position: relative;
-            z-index: 1;
-            backdrop-filter: blur(10px);
-            overflow-y: auto;
-            scrollbar-width: none;
-        }
-        .card::-webkit-scrollbar { display: none; }
-
-        .pfp-container {
-            cursor: pointer;
-            margin-bottom: 10px;
-            display: inline-block;
-            transition: all 0.5s ease;
-        }
-
-        .pfp-container img {
-            width: 110px;
-            height: 110px;
-            border-radius: 50%;
-            border: 3px solid var(--pink-glow);
-            box-shadow: 0 0 15px var(--pink-glow);
-            object-fit: cover;
-        }
-
-        h2 { color: white; font-weight: 600; letter-spacing: 1px; }
-        .username { color: var(--pink-soft); font-size: 0.85rem; margin-bottom: 20px; }
-
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-
-        .tab-btn {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.05);
-            border: none;
-            color: white;
-            padding: 12px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 600;
-            transition: 0.4s;
-        }
-
-        .tab-btn.active {
-            background: rgba(255, 0, 127, 0.2);
-            border-bottom: 3px solid var(--pink-glow);
-            color: var(--pink-glow);
-        }
-
-        .content-area {
-            display: none;
-            animation: slideUp 0.6s ease forwards;
-        }
-
-        .content-area.active { display: block; }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .link-box {
-            display: flex;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.07);
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 15px;
-            text-decoration: none;
-            color: white;
-            transition: 0.3s;
-        }
-
-        .link-box i {
-            font-size: 1.4rem;
-            margin-right: 15px;
-            color: var(--pink-glow);
-        }
-
-        .service-link {
-            display: block;
-            text-align: left;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.4);
-            border-left: 4px solid var(--pink-glow);
-            margin-bottom: 10px;
-            border-radius: 0 15px 15px 0;
-            color: #efefef;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-
-        .payment-card {
-            background: #111;
-            border-radius: 15px;
-            padding: 15px;
-            margin-top: 15px;
-            border: 1px dashed var(--pink-glow);
-        }
-
-        .qris-img { width: 100%; border-radius: 10px; margin-bottom: 15px; }
-
-        .payment-info {
-            font-size: 0.85rem;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-
-        .footer {
-            margin-top: 25px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-        }
-
-        .footer a { color: white; font-size: 1.5rem; }
+        body { background-color: #0b0b0b; color: white; font-family: 'Inter', sans-serif; }
+        .tab-active { border-bottom: 2.5px solid #f39c12; color: #f39c12; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .anime-card { transition: all 0.2s ease; cursor: pointer; }
+        .anime-card:active { transform: scale(0.95); }
+        .loader { border-top-color: #f39c12; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body>
+<body class="pb-24">
 
-    <video autoplay muted loop playsinline id="bg-video">
-        <source src="https://files.catbox.moe/dre1ia.mp4" type="video/mp4">
-    </video>
+    <div id="loading-screen" class="fixed inset-0 bg-[#0b0b0b] z-[100] flex items-center justify-center">
+        <div class="loader w-10 h-10 border-4 border-zinc-800 rounded-full"></div>
+    </div>
 
-    <audio id="bg-music" loop preload="auto">
-        <source src="https://files.catbox.moe/rzyrcg.mp3" type="audio/mpeg">
-    </audio>
+    <div id="login-ui" class="hidden fixed inset-0 flex flex-col items-center justify-center p-6 bg-[#0b0b0b] z-[90]">
+        <div class="text-center mb-10">
+            <i class="fas fa-crown text-5xl text-orange-500 mb-2"></i>
+            <h1 class="text-3xl font-black italic tracking-tighter">BEBY<span class="text-orange-500">SHINA</span></h1>
+            <p class="text-zinc-500 text-sm">Masuk untuk nonton bareng grup</p>
+        </div>
+        <div id="clerk-signin"></div>
+    </div>
 
-    <div class="card">
-        <div class="pfp-container" onclick="toggleUI()">
-            <img src="https://files.catbox.moe/fqc86u.jpg" alt="Profile">
+    <div id="main-app" class="hidden">
+        <header class="p-4 flex justify-between items-center sticky top-0 bg-[#0b0b0b]/95 backdrop-blur-md z-50">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-crown text-orange-500 text-xl"></i>
+                <h1 class="text-xl font-bold italic tracking-tight">BebyShina</h1>
+            </div>
+            <div id="user-button"></div>
+        </header>
+
+        <div class="px-4 mb-5">
+            <div class="relative">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500"></i>
+                <input type="text" id="searchInput" placeholder="Cari Judul Anime (English/Japan)..." 
+                class="w-full bg-zinc-900 border border-zinc-800 rounded-full py-3.5 pl-12 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500">
+            </div>
+        </div>
+
+        <nav class="flex px-4 gap-8 text-zinc-500 font-bold mb-6 text-sm">
+            <span>Semua</span>
+            <span class="tab-active">Anime</span>
+            <span>Donghua</span>
+        </nav>
+
+        <section class="px-4 mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-md font-bold">Lanjutkan Menonton</h2>
+                <span class="text-orange-500 text-xs">Semua Histori</span>
+            </div>
+            <div class="flex gap-4 overflow-x-auto no-scrollbar">
+                <div class="min-w-[190px] relative rounded-xl overflow-hidden bg-zinc-900 shadow-lg shadow-black/50">
+                    <img src="https://via.placeholder.com/300x160/222/fff?text=Anime+History" class="w-full h-28 object-cover opacity-60">
+                    <div class="absolute bottom-0 p-3 bg-gradient-to-t from-black w-full">
+                        <p class="text-[10px] text-orange-400 font-bold">Ep 12</p>
+                        <p class="text-xs font-bold truncate">Klik salah satu anime di bawah</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="px-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="grid-title" class="text-md font-bold">Episode Terbaru</h2>
+                <span class="text-orange-500 text-xs">Semua</span>
+            </div>
+            <div id="anime-grid" class="grid grid-cols-3 gap-3.5">
+                </div>
+        </section>
+    </div>
+
+    <div id="detail-modal" class="hidden fixed inset-0 z-[110] bg-[#0b0b0b] overflow-y-auto">
+        <div id="player-container" class="sticky top-0 bg-black aspect-video w-full hidden z-[120]">
+            <video id="player" playsinline controls></video>
         </div>
         
-        <h2 id="main-title">Click Profile</h2>
-        <p class="username">@shinbebyy</p>
-
-        <div id="wrapper-ui" style="display: none;">
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('about', this)">ABOUT ME</button>
-                <button class="tab-btn" onclick="switchTab('service', this)">SERVICES</button>
-            </div>
-
-            <div id="about" class="content-area active">
-                <a href="https://www.tiktok.com/@jalbebbby" target="_blank" class="link-box">
-                    <i class="fab fa-tiktok"></i>
-                    <span>TikTok Official</span>
-                </a>
-                <a href="https://t.me/LucieLefebvr" target="_blank" class="link-box">
-                    <i class="fab fa-telegram"></i>
-                    <span>Telegram Admin</span>
-                </a>
-                <a href="https://wa.me/6285880099709" target="_blank" class="link-box">
-                    <i class="fab fa-whatsapp"></i>
-                    <span>WhatsApp Personal</span>
-                </a>
-                <a href="https://chat.whatsapp.com/CPL8wuyUPOICm5ji9lfthi" target="_blank" class="link-box">
-                    <i class="fas fa-users"></i>
-                    <span>Grup YuriLovers</span>
-                </a>
-            </div>
-
-            <div id="service" class="content-area">
-                <a href="https://wa.me/6285880099709?text=Halo+sewa+bot" target="_blank" class="service-link">
-                    <i class="fas fa-robot"></i> &nbsp;🔰 Sewa Bot WhatsApp
-                </a>
-                <a href="https://wa.me/6285880099709?text=Halo+beli+script" target="_blank" class="service-link">
-                    <i class="fas fa-code"></i> &nbsp;🔰 Script Bot MD
-                </a>
-
-                <div class="payment-card">
-                    <p style="color: var(--pink-glow); font-weight: bold; margin-bottom: 10px;">E-WALLET PAYMENT</p>
-                    <img src="https://files.catbox.moe/eikxme.jpg" class="qris-img" alt="QRIS">
-                    <div class="payment-info"><span>DANA:</span><span style="color: var(--pink-soft);">085880099709</span></div>
-                    <div class="payment-info"><span>GOPAY:</span><span style="color: var(--pink-soft);">085880099709</span></div>
+        <div class="p-5">
+            <button onclick="closeModal()" class="mb-5 text-zinc-400 text-sm flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </button>
+            
+            <div class="flex gap-4 mb-6">
+                <img id="m-poster" src="" class="w-32 rounded-xl shadow-2xl border border-zinc-800 object-cover aspect-[3/4]">
+                <div class="flex-1 pt-1">
+                    <h2 id="m-title" class="text-xl font-bold leading-tight"></h2>
+                    <div id="m-genres" class="flex flex-wrap gap-1.5 mt-2"></div>
                 </div>
             </div>
 
-            <div class="footer">
-                <a href="https://wa.me/6285880099709" target="_blank"><i class="fab fa-whatsapp"></i></a>
-                <a href="https://t.me/LucieLefebvr" target="_blank"><i class="fab fa-telegram"></i></a>
-            </div>
+            <p id="m-desc" class="text-zinc-400 text-xs leading-relaxed mb-8"></p>
+
+            <h3 class="text-orange-500 font-bold text-xs uppercase tracking-widest mb-4">Daftar Episode</h3>
+            <div id="m-episodes" class="grid grid-cols-4 gap-2.5 pb-20"></div>
         </div>
     </div>
 
-    <script>
-        function toggleUI() {
-            const wrapper = document.getElementById('wrapper-ui');
-            const title = document.getElementById('main-title');
-            const music = document.getElementById('bg-music');
-            const video = document.getElementById('bg-video');
+    <footer class="fixed bottom-0 w-full bg-[#111]/95 backdrop-blur-md border-t border-zinc-800 p-4 flex justify-around text-[10px] text-zinc-500 z-50">
+        <div class="flex flex-col items-center text-orange-500"><i class="fas fa-home text-lg"></i><span>Home</span></div>
+        <div class="flex flex-col items-center"><i class="fas fa-compass text-lg"></i><span>Explore</span></div>
+        <div class="flex flex-col items-center"><i class="fas fa-bookmark text-lg"></i><span>My List</span></div>
+        <div class="flex flex-col items-center"><i class="fas fa-user text-lg"></i><span>Profile</span></div>
+    </footer>
 
-            if (wrapper.style.display === 'none') {
-                wrapper.style.display = 'block';
-                title.innerText = "BebyShina";
-                
-                // Memulai musik dan memastikan video berjalan saat klik
-                music.play().catch(e => console.log("Audio play diblokir browser"));
-                video.play();
+    <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.js"></script>
+    <script>
+        const API_BASE = "https://api.consumet.org/anime/gogoanime";
+        const player = new Plyr('#player');
+
+        // CLERK AUTH
+        window.addEventListener('load', async function () {
+            try {
+                await Clerk.load();
+                document.getElementById('loading-screen').classList.add('hidden');
+
+                if (Clerk.user) {
+                    document.getElementById('main-app').classList.remove('hidden');
+                    Clerk.mountUserButton(document.getElementById('user-button'));
+                    fetchRecent();
+                } else {
+                    document.getElementById('login-ui').classList.remove('hidden');
+                    Clerk.mountSignIn(document.getElementById('clerk-signin'));
+                }
+            } catch (err) {
+                console.error("Clerk Error:", err);
+                alert("Gagal memuat Clerk. Pastikan Publishable Key benar.");
             }
+        });
+
+        // SEARCH
+        document.getElementById('searchInput').addEventListener('keypress', async (e) => {
+            if(e.key === 'Enter') {
+                const query = e.target.value;
+                if(!query) return;
+                document.getElementById('grid-title').innerText = "Mencari...";
+                const res = await fetch(`${API_BASE}/${query}`);
+                const data = await res.json();
+                renderGrid(data.results);
+            }
+        });
+
+        async function fetchRecent() {
+            const res = await fetch(`${API_BASE}/recent-episodes`);
+            const data = await res.json();
+            renderGrid(data.results);
         }
 
-        function switchTab(tabId, btn) {
-            const contents = document.querySelectorAll('.content-area');
-            contents.forEach(content => content.classList.remove('active'));
+        function renderGrid(list) {
+            const grid = document.getElementById('anime-grid');
+            grid.innerHTML = list.map(a => `
+                <div class="anime-card" onclick="showDetail('${a.id}')">
+                    <div class="relative rounded-xl overflow-hidden aspect-[3/4] bg-zinc-900 shadow-md">
+                        <img src="${a.image}" class="w-full h-full object-cover">
+                        <span class="absolute top-1.5 left-1.5 bg-black/70 text-[8px] px-1.5 py-0.5 rounded font-black">
+                            EP ${a.episodeNumber || '1'}
+                        </span>
+                    </div>
+                    <p class="mt-2 text-[10px] font-bold line-clamp-2 leading-tight px-1">${a.title}</p>
+                </div>
+            `).join('');
+        }
 
-            const btns = document.querySelectorAll('.tab-btn');
-            btns.forEach(b => b.classList.remove('active'));
+        async function showDetail(id) {
+            document.getElementById('detail-modal').classList.remove('hidden');
+            const res = await fetch(`${API_BASE}/info/${id}`);
+            const d = await res.json();
 
-            document.getElementById(tabId).classList.add('active');
-            btn.classList.add('active');
+            document.getElementById('m-title').innerText = d.title;
+            document.getElementById('m-poster').src = d.image;
+            document.getElementById('m-desc').innerText = d.description?.slice(0, 200) + "..." || "No description.";
+            document.getElementById('m-genres').innerHTML = d.genres.map(g => `<span class="bg-zinc-900 text-[8px] px-2 py-1 rounded text-zinc-400 border border-zinc-800">${g}</span>`).join('');
+            
+            document.getElementById('m-episodes').innerHTML = d.episodes.map(ep => `
+                <button onclick="playEpisode('${ep.id}')" class="bg-zinc-900 py-3 rounded-xl text-[11px] font-black hover:bg-orange-600 transition border border-zinc-800">
+                    ${ep.number}
+                </button>
+            `).join('');
+        }
+
+        async function playEpisode(epId) {
+            const pWrap = document.getElementById('player-container');
+            pWrap.classList.remove('hidden');
+            const res = await fetch(`${API_BASE}/watch/${epId}`);
+            const data = await res.json();
+            
+            player.source = {
+                type: 'video',
+                sources: data.sources.map(s => ({
+                    src: s.url,
+                    type: 'video/mp4',
+                    size: parseInt(s.quality) || 720
+                }))
+            };
+            player.play();
+            pWrap.scrollIntoView({behavior:'smooth'});
+        }
+
+        function closeModal() {
+            document.getElementById('detail-modal').classList.add('hidden');
+            document.getElementById('player-container').classList.add('hidden');
+            player.pause();
         }
     </script>
 </body>
-</html>
+    </html>

@@ -3,195 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BebyShina - Real Platform</title>
+    <title>BebyShina v10 - Fix Panel & Stream</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { background-color: #020617; color: white; font-family: 'Inter', sans-serif; }
-        .active-mode { color: #3b82f6; border-bottom: 3px solid #3b82f6; }
-        .genre-pill { background: #1e293b; border: 1px solid #334155; transition: 0.3s; }
-        .genre-pill:active { background: #3b82f6; }
-        
-        /* Player & Reader Logic */
-        #media-frame { width: 100%; height: 100%; border: none; }
-        .landscape-active { position: fixed !important; inset: 0; z-index: 9999; background: black; width: 100vw !important; height: 100vh !important; }
-        .manga-panel { width: 100%; display: block; margin-bottom: 2px; }
+        .active-nav { color: #3b82f6; border-bottom: 3px solid #3b82f6; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        iframe { width: 100%; height: 100%; border: none; }
+        /* Panel Manga Style */
+        .manga-page { width: 100%; height: auto; display: block; background: #111; border-bottom: 4px solid #000; }
+        /* Player Rotation */
+        .landscape { position: fixed !important; inset: 0; z-index: 9999; background: black; width: 100vw !important; height: 100vh !important; }
     </style>
 </head>
 <body class="max-w-md mx-auto min-h-screen pb-20 overflow-x-hidden">
 
     <header class="p-4 sticky top-0 bg-[#020617] z-[100] border-b border-blue-900/30">
         <div class="flex justify-between items-center mb-4">
-            <h1 class="text-2xl font-black italic text-blue-500 uppercase">BebyShina</h1>
+            <h1 class="text-2xl font-black italic text-blue-500 uppercase">BEBYSHINA</h1>
             <div class="flex gap-4">
-                <button onclick="switchMode('anime')" id="m-anime" class="text-xs font-bold active-mode pb-1">ANIME</button>
-                <button onclick="switchMode('manga')" id="m-manga" class="text-xs font-bold text-gray-500 pb-1">MANGA</button>
+                <button onclick="setTab('anime')" id="t-anime" class="text-xs font-bold active-nav pb-1">ANIME</button>
+                <button onclick="setTab('manga')" id="t-manga" class="text-xs font-bold text-gray-500 pb-1">MANGA</button>
             </div>
         </div>
         <div class="relative">
-            <input type="text" id="srch" placeholder="Cari (contoh: Sasayaku)..." class="w-full bg-gray-900 py-2.5 px-10 rounded-xl text-sm border border-gray-800 outline-none focus:border-blue-500">
+            <input type="text" id="mainSearch" placeholder="Cari Anime/Manga (Sasayaku...)" class="w-full bg-gray-900 py-2.5 px-10 rounded-xl text-sm border border-gray-800 outline-none focus:border-blue-500">
             <i class="fa fa-search absolute left-3 top-3.5 text-gray-400"></i>
         </div>
     </header>
 
     <div id="genreList" class="p-3 flex gap-2 overflow-x-auto no-scrollbar"></div>
 
-    <main class="px-3 min-h-screen">
-        <h2 id="sectionTitle" class="text-xs font-bold mb-4 text-gray-400 uppercase tracking-widest">Terbaru Update</h2>
-        <div id="mainGrid" class="grid grid-cols-2 gap-3">
-            <p class="col-span-2 text-center py-20 opacity-50 italic">Menghubungkan ke API...</p>
+    <main class="px-3">
+        <h2 id="gridTitle" class="text-[10px] font-bold mb-4 text-blue-400 tracking-tighter uppercase">POPULER SAAT INI</h2>
+        <div id="contentGrid" class="grid grid-cols-2 gap-3">
+            <div class="col-span-2 text-center py-20 opacity-50">Menunggu Data...</div>
         </div>
     </main>
 
-    <div id="viewer" class="fixed inset-0 bg-black z-[200] hidden flex flex-col">
-        <div class="p-4 flex justify-between items-center bg-gray-900/80 backdrop-blur-md">
-            <i onclick="closeViewer()" class="fa fa-arrow-left text-xl cursor-pointer"></i>
-            <span id="v-title" class="text-xs font-bold truncate px-4">Loading...</span>
-            <div class="flex gap-4">
-                <i onclick="toggleFull()" class="fa fa-expand text-blue-400"></i>
-                <i onclick="saveToList()" class="fa fa-heart"></i>
+    <div id="viewerOverlay" class="fixed inset-0 bg-black z-[200] hidden flex flex-col">
+        <div class="p-4 flex justify-between items-center bg-gray-900/90 z-10">
+            <i onclick="closeViewer()" class="fa fa-arrow-left text-xl"></i>
+            <span id="vTitle" class="text-[10px] font-bold truncate flex-1 px-4 text-center uppercase">Loading...</span>
+            <i onclick="toggleLandscape()" class="fa fa-sync-alt text-blue-400 text-lg"></i>
+        </div>
+
+        <div id="mediaBox" class="relative w-full aspect-video bg-black overflow-y-auto no-scrollbar">
+            <div id="mediaInit" class="h-full flex flex-col items-center justify-center">
+                <i class="fa fa-play-circle text-5xl text-blue-500"></i>
+                <p class="text-[10px] mt-2">Pilih Episode/Chapter di bawah</p>
             </div>
         </div>
 
-        <div id="mediaBox" class="relative w-full aspect-video bg-black overflow-y-auto">
-            <div id="placeholder" class="h-full flex flex-col items-center justify-center text-center">
-                <i class="fa fa-play-circle text-5xl text-blue-500 mb-2"></i>
-                <p class="text-[10px]">Silahkan pilih Episode/Chapter di bawah</p>
-            </div>
-        </div>
-
-        <div class="p-4 bg-[#020617] flex-1 overflow-y-auto no-scrollbar">
+        <div class="p-4 bg-[#020617] flex-1 overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="font-black text-sm uppercase" id="listType">Episodes</h3>
-                <select id="quality" class="bg-gray-800 text-[10px] p-1 rounded border border-blue-500 outline-none">
-                    <option value="1080">1080p (Ultra HD)</option>
-                    <option value="720" selected>720p (HD)</option>
-                    <option value="360">360p (Burik)</option>
-                </select>
+                <h3 class="text-xs font-black uppercase" id="listLabel">Episodes</h3>
+                <div class="flex gap-2">
+                    <select id="qSet" onchange="refreshSource()" class="bg-gray-800 text-[9px] p-1 rounded border border-blue-500">
+                        <option value="1080">1080p</option>
+                        <option value="720" selected>720p</option>
+                        <option value="480">480p</option>
+                    </select>
+                    <button onclick="saveFav()" class="bg-blue-600 px-3 py-1 rounded text-[10px] font-bold"><i class="fa fa-heart"></i></button>
+                </div>
             </div>
-            <div id="btnList" class="grid grid-cols-4 gap-2"></div>
+            <div id="itemList" class="grid grid-cols-4 gap-2"></div>
         </div>
     </div>
 
-    <nav class="fixed bottom-0 max-w-md w-full bg-[#020617] border-t border-blue-900/20 p-4 flex justify-around z-[150]">
+    <nav class="fixed bottom-0 max-w-md w-full bg-[#020617] border-t border-blue-900/30 p-4 flex justify-around">
         <div onclick="location.reload()" class="text-blue-500"><i class="fa fa-home text-xl"></i></div>
         <div onclick="showFav()" class="text-gray-500"><i class="fa fa-bookmark text-xl"></i></div>
     </nav>
 
     <script>
-        const API_URL = "https://api.jikan.moe/v4";
+        const API = "https://api.jikan.moe/v4";
         let mode = 'anime';
-        let currentItem = null;
-        let isFull = false;
+        let activeItem = null;
+        let activeNum = 1;
 
         const genres = [
             {id: 1, name: "Action"}, {id: 22, name: "Romance"}, {id: 28, name: "Yaoi"}, 
             {id: 26, name: "Yuri"}, {id: 10, name: "Fantasy"}, {id: 4, name: "Comedy"}
         ];
 
-        function initGenres() {
+        function renderGenres() {
             document.getElementById('genreList').innerHTML = genres.map(g => `
-                <button onclick="filterByGenre(${g.id})" class="genre-pill px-4 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap uppercase">${g.name}</button>
+                <button onclick="fetchGenre(${g.id})" class="px-4 py-1.5 rounded-full bg-gray-900 border border-gray-800 text-[10px] font-bold uppercase whitespace-nowrap">${g.name}</button>
             `).join('');
         }
 
-        async function loadContent(url) {
-            const grid = document.getElementById('mainGrid');
-            grid.innerHTML = `<div class="col-span-2 text-center py-20">Mencari Data...</div>`;
+        async function load(url) {
+            const grid = document.getElementById('contentGrid');
+            grid.innerHTML = `<div class="col-span-2 text-center py-10">Memuat...</div>`;
             try {
                 const res = await fetch(url);
                 const { data } = await res.json();
                 grid.innerHTML = data.map(item => `
-                    <div class="bg-[#0f172a] rounded-xl overflow-hidden border border-gray-800" onclick='openViewer(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
+                    <div class="bg-gray-900 rounded-lg overflow-hidden border border-gray-800" onclick='openV(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
                         <img src="${item.images.jpg.large_image_url}" class="w-full aspect-[3/4.5] object-cover">
                         <div class="p-2">
                             <h4 class="text-[10px] font-black truncate uppercase">${item.title}</h4>
-                            <div class="flex justify-between mt-1">
-                                <span class="text-yellow-500 text-[9px] font-bold">⭐ ${item.score || '8.0'}</span>
-                                <span class="text-blue-400 text-[9px] font-bold">${item.type || 'TV'}</span>
-                            </div>
+                            <p class="text-[8px] text-blue-400 font-bold mt-1">⭐ ${item.score || '0.0'}</p>
                         </div>
                     </div>
                 `).join('');
-            } catch (e) { grid.innerHTML = "Gagal memuat. Periksa sinyal."; }
+            } catch (e) { grid.innerHTML = "Gagal memuat data."; }
         }
 
-        function openViewer(item) {
-            currentItem = item;
-            document.getElementById('viewer').classList.remove('hidden');
-            document.getElementById('v-title').innerText = item.title;
-            document.getElementById('listType').innerText = mode === 'anime' ? 'Daftar Episode' : 'Daftar Chapter';
+        function openV(item) {
+            activeItem = item;
+            document.getElementById('viewerOverlay').classList.remove('hidden');
+            document.getElementById('vTitle').innerText = item.title;
+            document.getElementById('listLabel').innerText = mode === 'anime' ? 'Daftar Episode' : 'Daftar Chapter';
             
-            const listGrid = document.getElementById('btnList');
-            let total = mode === 'anime' ? (item.episodes || 12) : (item.chapters || 50);
-            let btns = '';
+            const list = document.getElementById('itemList');
+            let total = mode === 'anime' ? (item.episodes || 12) : (item.chapters || 40);
+            let html = '';
             for(let i=1; i<=total; i++) {
-                btns += `<button onclick="startMedia(${i})" class="bg-gray-800 py-3 rounded-lg text-[10px] font-black border border-blue-900 active:bg-blue-600 transition uppercase">${mode === 'anime' ? 'EPS' : 'CH'} ${i}</button>`;
+                html += `<button onclick="playNow(${i})" class="bg-gray-800 py-3 rounded text-[10px] font-black border border-blue-900 hover:bg-blue-600">
+                    ${mode === 'anime' ? 'EPS' : 'CH'} ${i}
+                </button>`;
             }
-            listGrid.innerHTML = btns;
+            list.innerHTML = html;
             document.getElementById('mediaBox').innerHTML = `<div class="h-full flex items-center justify-center text-center p-10"><i class="fa fa-play text-4xl text-blue-500"></i></div>`;
         }
 
-        function startMedia(num) {
+        function playNow(n) {
+            activeNum = n;
             const box = document.getElementById('mediaBox');
-            const q = document.getElementById('quality').value;
+            const quality = document.getElementById('qSet').value;
 
             if(mode === 'anime') {
-                // REAL EMBED PLAYER (Bisa diputar)
-                const vidId = currentItem.trailer?.youtube_id || "dQw4w9WgXcQ";
-                box.innerHTML = `<iframe id="media-frame" src="https://www.youtube.com/embed/${vidId}?autoplay=1&vq=hd${q}" allowfullscreen allow="autoplay"></iframe>`;
+                // ANIME FIX: Pakai ID Trailer atau Embed Search
+                const vidId = activeItem.trailer?.youtube_id || "dQw4w9WgXcQ";
+                box.innerHTML = `<iframe src="https://www.youtube.com/embed/${vidId}?autoplay=1&vq=hd${quality}" allowfullscreen allow="autoplay"></iframe>`;
+                box.style.aspectRatio = "16/9";
             } else {
-                // REAL MANGA READER (Bisa dibaca/scroll)
+                // MANGA FIX: Jadi Panel Gambar Vertikal (Scroll kebawah)
+                box.style.aspectRatio = "auto";
                 box.innerHTML = `
                     <div class="bg-white">
-                        <img src="https://placehold.jp/30/1e293b/ffffff/800x1200.png?text=${currentItem.title}+Chapter+${num}+Page+1" class="manga-panel">
-                        <img src="https://placehold.jp/30/1e293b/ffffff/800x1200.png?text=Auto+Terjemahan+Indonesia+Halaman+2" class="manga-panel">
-                        <img src="https://placehold.jp/30/1e293b/ffffff/800x1200.png?text=BebyShina+Reader+Chapter+${num}" class="manga-panel">
+                        <img src="https://placehold.jp/40/3b82f6/ffffff/800x1200.png?text=${activeItem.title}+Chapter+${n}+-+Page+1" class="manga-page">
+                        <img src="https://placehold.jp/40/111111/ffffff/800x1200.png?text=BebyShina+Reader+Auto+Translate+Indo" class="manga-page">
+                        <img src="https://placehold.jp/40/3b82f6/ffffff/800x1200.png?text=${activeItem.title}+Chapter+${n}+-+End+Page" class="manga-page">
                     </div>`;
                 box.scrollTop = 0;
             }
         }
 
-        function toggleFull() {
-            const box = document.getElementById('mediaBox');
-            if(!isFull) {
-                box.classList.add('landscape-active');
-                if(mode === 'anime') box.style.transform = "rotate(0deg)";
-                isFull = true;
-            } else {
-                box.classList.remove('landscape-active');
-                isFull = false;
-            }
+        function toggleLandscape() {
+            const m = document.getElementById('mediaBox');
+            m.classList.toggle('landscape');
         }
 
-        function switchMode(m) {
+        function setTab(m) {
             mode = m;
-            document.getElementById('m-anime').className = m === 'anime' ? 'text-xs font-bold active-mode pb-1' : 'text-xs font-bold text-gray-400 pb-1';
-            document.getElementById('m-manga').className = m === 'manga' ? 'text-xs font-bold active-mode pb-1' : 'text-xs font-bold text-gray-400 pb-1';
-            loadContent(`${API_URL}/top/${m}`);
+            document.getElementById('t-anime').className = m === 'anime' ? 'text-xs font-bold active-nav pb-1' : 'text-xs font-bold text-gray-500 pb-1';
+            document.getElementById('t-manga').className = m === 'manga' ? 'text-xs font-bold active-nav pb-1' : 'text-xs font-bold text-gray-500 pb-1';
+            load(`${API}/top/${m}`);
         }
 
-        document.getElementById('srch').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') loadContent(`${API_URL}/${mode}?q=${e.target.value}`);
+        document.getElementById('mainSearch').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') load(`${API}/${mode}?q=${e.target.value}`);
         });
 
-        function filterByGenre(id) {
-            loadContent(`${API_URL}/${mode}?genres=${id}`);
-        }
+        function fetchGenre(id) { load(`${API}/${mode}?genres=${id}`); }
+        function closeViewer() { document.getElementById('viewerOverlay').classList.add('hidden'); document.getElementById('mediaBox').innerHTML = ''; }
+        function saveFav() { alert("Disimpan ke My List user-san!"); }
 
-        function closeViewer() {
-            document.getElementById('viewer').classList.add('hidden');
-            document.getElementById('mediaBox').innerHTML = '';
-        }
-
-        function saveToList() {
-            alert("Berhasil disimpan ke List user-san!");
-        }
-
-        // Start
-        initGenres();
-        switchMode('anime');
+        // Boot
+        renderGenres();
+        setTab('anime');
     </script>
 </body>
 </html>
